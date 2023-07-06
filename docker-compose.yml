@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres
+    volumes:
+      # manteŕa os dados do nosso app entre as inicailizações do contêiner.
+      - ./tmp/db:/var/lib/postgresql/data
+      # montamos nosso script de inicialização init.sql no diretório apropriado
+      # para criar nosso usuário de banco de dados. 
+      # Depois que o ponto de entrada da imagem criar o usuário e banco de dados padrão
+      # ele executará quaisquer scripts encontrados no diretórios docker-entrypoint-initdb.d
+      # que você podera usar para as tarefas de iniciliazação necessárias.
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  web:
+    build: .
+    
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    env_file:
+      # está opção diz ao Compose que gostraríamos de adicionar variáiveis de 
+      # ambiente de um arquivo chamado .env, localizado no contexto da compilação.
+      - .env  
+    depends_on:
+      - db
